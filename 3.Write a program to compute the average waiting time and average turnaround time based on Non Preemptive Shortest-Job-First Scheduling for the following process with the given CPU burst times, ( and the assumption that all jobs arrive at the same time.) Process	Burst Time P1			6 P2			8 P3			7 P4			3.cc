@@ -1,37 +1,54 @@
-def calculate_average_times(processes, burst_times):
-    n = len(processes)
-    waiting_time = [0] * n
-    turnaround_time = [0] * n
-    total_waiting_time = 0
-    total_turnaround_time = 0
+#include<stdio.h>
 
-    # Sort the processes by burst time
-    sorted_processes = sorted(range(n), key=lambda k: burst_times[k])
+int main()
+{
+    int n=4, i, j, temp, total=0, pos;
+    float average_waiting_time, average_turnaround_time;
+    int burst_time[4]={6, 8, 7, 3}, arrival_time[4]={0, 0, 0, 0}, waiting_time[4]={0, 0, 0, 0}, turnaround_time[4]={0, 0, 0, 0};
 
-    # Calculate waiting time and turnaround time for each process
-    for i in range(n):
-        process_index = sorted_processes[i]
-        if i == 0:
-            waiting_time[process_index] = 0
-        else:
-            waiting_time[process_index] = burst_times[sorted_processes[i-1]] + waiting_time[sorted_processes[i-1]]
-        turnaround_time[process_index] = burst_times[process_index] + waiting_time[process_index]
+    for(i=0;i<n;i++) //sorting based on burst time
+    {
+        pos=i;
+        for(j=i+1;j<n;j++)
+        {
+            if(burst_time[j]<burst_time[pos])
+                pos=j;
+        }
+        temp=burst_time[i];
+        burst_time[i]=burst_time[pos];
+        burst_time[pos]=temp;
 
-        total_waiting_time += waiting_time[process_index]
-        total_turnaround_time += turnaround_time[process_index]
+        temp=arrival_time[i];
+        arrival_time[i]=arrival_time[pos];
+        arrival_time[pos]=temp;
+    }
 
-    # Calculate the averages
-    avg_waiting_time = total_waiting_time / n
-    avg_turnaround_time = total_turnaround_time / n
+    waiting_time[0]=0; //waiting time for the first process is 0
 
-    return avg_waiting_time, avg_turnaround_time
+    for(i=1;i<n;i++) //calculating waiting time for each process
+    {
+        waiting_time[i]=0;
+        for(j=0;j<i;j++)
+            waiting_time[i]+=burst_time[j];
+        total+=waiting_time[i];
+    }
 
+    average_waiting_time=(float)total/n; //calculating average waiting time
+    total=0;
 
-# Define the process names and burst times
-processes = ["P1", "P2", "P3", "P4"]
-burst_times = [6, 8, 7, 3]
+    printf("\nProcess\tBurst Time\tWaiting Time\tTurnaround Time\n");
 
-# Calculate the average times and print the results
-avg_waiting_time, avg_turnaround_time = calculate_average_times(processes, burst_times)
-print("Average Waiting Time:", avg_waiting_time)
-print("Average Turnaround Time:", avg_turnaround_time)
+    for(i=0;i<n;i++) //calculating turnaround time for each process and displaying the results
+    {
+        turnaround_time[i]=burst_time[i]+waiting_time[i];
+        total+=turnaround_time[i];
+        printf("P%d\t\t%d\t\t%d\t\t%d\n", i+1, burst_time[i], waiting_time[i], turnaround_time[i]);
+    }
+
+    average_turnaround_time=(float)total/n; //calculating average turnaround time
+
+    printf("\nAverage Waiting Time = %.2f\n", average_waiting_time);
+    printf("Average Turnaround Time = %.2f\n", average_turnaround_time);
+
+    return 0;
+}
